@@ -14,6 +14,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const fetchJulaImgBtn = document.getElementById('fetch-jula-img-btn');
     const julaImageInput = document.getElementById('jula-image-input');
     const addFooterBannerBtn = document.getElementById('add-footer-banner-btn');
+    const editorSidebar = document.querySelector('.editor-sidebar');
+    const sidebarToggleBtn = document.getElementById('sidebar-toggle');
+    const sidebarToggleIcon = sidebarToggleBtn ? sidebarToggleBtn.querySelector('.sidebar-toggle-icon') : null;
 
     // Text Settings Panel
     const textSettingsPanel = document.getElementById('text-settings-panel');
@@ -96,6 +99,27 @@ document.addEventListener('DOMContentLoaded', () => {
         const scaleHeight = (previewArea.clientHeight - padding) / assumedA4Height;
         currentZoom = Math.min(Math.max(scaleHeight, 0.1), 1.0);
         updateZoom();
+    }
+
+    function setSidebarCollapsed(collapsed) {
+        if (!editorSidebar || !sidebarToggleBtn) return;
+
+        editorSidebar.classList.toggle('is-collapsed', collapsed);
+        editorSidebar.setAttribute('aria-expanded', String(!collapsed));
+        sidebarToggleBtn.setAttribute('aria-expanded', String(!collapsed));
+        sidebarToggleBtn.setAttribute('aria-label', collapsed ? 'Fäll ut sidomenyn' : 'Fäll in sidomenyn');
+
+        if (sidebarToggleIcon) {
+            sidebarToggleIcon.innerHTML = collapsed ? '&rsaquo;' : '&lsaquo;';
+        }
+
+        requestAnimationFrame(autoFitZoom);
+    }
+
+    if (sidebarToggleBtn) {
+        sidebarToggleBtn.addEventListener('click', () => {
+            setSidebarCollapsed(!editorSidebar.classList.contains('is-collapsed'));
+        });
     }
 
     // Print Button

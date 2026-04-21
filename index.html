@@ -12,8 +12,12 @@
 <body>
     <div class="app-container">
         <!-- Editor Sidebar -->
-        <aside class="editor-sidebar no-print">
+        <aside class="editor-sidebar no-print" aria-expanded="true">
             <header class="editor-header">
+                <button class="sidebar-toggle" id="sidebar-toggle" type="button" aria-label="Fäll in sidomenyn"
+                    aria-expanded="true">
+                    <span class="sidebar-toggle-icon" aria-hidden="true">&lsaquo;</span>
+                </button>
                 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Jula_logo.svg/2560px-Jula_logo.svg.png"
                     alt="Jula Logo" class="brand-logo" onerror="this.style.display='none'">
                 <h1>Flyer Generator</h1>

@@ -43,12 +43,19 @@ body {
 /* Sidebar Styling - Premium Dark Mode */
 .editor-sidebar {
     width: 350px;
+    min-width: 350px;
     background-color: var(--sidebar-bg);
     border-right: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
     z-index: 10;
     box-shadow: 4px 0 15px rgba(0, 0, 0, 0.2);
+    transition: width 0.25s ease, min-width 0.25s ease;
+}
+
+.editor-sidebar.is-collapsed {
+    width: 72px;
+    min-width: 72px;
 }
 
 .editor-header {
@@ -59,6 +66,32 @@ body {
     gap: 15px;
 }
 
+.sidebar-toggle {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+
+.sidebar-toggle:hover {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+    background-color: rgba(226, 0, 21, 0.05);
+}
+
+.sidebar-toggle-icon {
+    font-size: 1.6rem;
+    line-height: 1;
+}
+
 .brand-logo {
     height: 30px;
 }
@@ -66,6 +99,22 @@ body {
 .editor-header h1 {
     font-size: 1.25rem;
     font-weight: 600;
+}
+
+.editor-sidebar.is-collapsed .brand-logo,
+.editor-sidebar.is-collapsed .editor-header h1,
+.editor-sidebar.is-collapsed .editor-content,
+.editor-sidebar.is-collapsed .editor-footer {
+    display: none;
+}
+
+.editor-sidebar.is-collapsed .editor-footer {
+    display: none !important;
+}
+
+.editor-sidebar.is-collapsed .editor-header {
+    padding: 18px;
+    justify-content: center;
 }
 
 .editor-content {
