@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="sv">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jula Flyer Generator</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="html2canvas.min.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Editor Sidebar -->
+        <aside class="editor-sidebar no-print">
+            <header class="editor-header">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Jula_logo.svg/2560px-Jula_logo.svg.png"
+                    alt="Jula Logo" class="brand-logo" onerror="this.style.display='none'">
+                <h1>Flyer Generator</h1>
+            </header>
+
+            <div class="editor-content">
+                <div class="form-group">
+                    <label for="format-select">Format</label>
+                    <select id="format-select">
+                        <option value="a4">A4 (210 × 297 mm)</option>
+                        <option value="a3">A3 (297 × 420 mm)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="bg-theme">Bakgrund Tema</label>
+                    <select id="bg-theme">
+                        <option value="theme-red">Klassisk Röd</option>
+                        <option value="theme-yellow">Kampanj Gul</option>
+                        <option value="theme-yellow-black">Jula Outlet</option>
+                        <option value="theme-crazy-deals">Crazy Deals</option>
+                    </select>
+                </div>
+
+                <hr style="border-color: var(--border-color); margin: 10px 0;">
+
+                <div class="form-group">
+                    <label>Verktyg</label>
+                    <button class="secondary-btn" id="add-text-btn">
+                        + Lägg till Text
+                    </button>
+                    <button class="secondary-btn" id="add-price-btn">
+                        + Lägg till Prislapp
+                    </button>
+
+                    <div class="file-upload-wrapper" style="margin-top: 5px;">
+                        <input type="file" id="image-upload" accept="image/*">
+                        <label for="image-upload" class="secondary-btn file-upload-label"
+                            style="margin:0; padding: 10px; font-size: 0.95rem;">
+                            + Ladda upp Bild
+                        </label>
+                    </div>
+
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+                        <label
+                            style="margin-bottom: 5px; display: block; color: var(--text-primary); font-size: 0.85rem;">Hämta
+                            Bild (Direktlänk från Jula)</label>
+                        <div style="display: flex; gap: 5px;">
+                            <input type="text" id="jula-image-input" placeholder="Klistra in bildadress (URL)..."
+                                style="flex:1; padding: 6px; font-size: 0.85rem; background: var(--input-bg); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px;">
+                            <button class="secondary-btn" id="fetch-jula-img-btn"
+                                style="padding: 0 10px; font-size: 0.85rem;">Hämta</button>
+                        </div>
+                    </div>
+
+                    <button class="secondary-btn" id="add-breaker-btn"
+                        style="margin-top: 15px; width: 100%; border-color: #e20015; border-width: 2px;">+ Lägg till
+                        Röd/Gul Delare</button>
+
+                    <button class="secondary-btn" id="add-footer-banner-btn"
+                        style="margin-top: 10px; width: 100%; border-color: #ffe800; border-width: 2px;">+ Lägg till
+                        Villkors-banner</button>
+                </div>
+
+                <!-- Price List Panel -->
+                <div id="price-list-panel" class="form-group"
+                    style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color);">
+                    <label style="margin-bottom: 10px; display: block; color: var(--text-primary);">Prisskyltars
+                        Spara-pris</label>
+                    <div id="price-list-items">
+                        <!-- Populated by JS -->
+                    </div>
+                    <p id="price-list-empty" style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">Inga
+                        prislappar tillagda ännu.</p>
+                </div>
+
+                <div id="text-settings-panel" class="form-group hidden"
+                    style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color);">
+                    <label
+                        style="margin-bottom: 5px; display: block; color: var(--text-primary);">Textinställningar</label>
+
+                    <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+                        <select id="text-font-select" style="flex: 1; padding: 6px 10px; font-size: 0.85rem;">
+                            <option value="JULA">JULA (Standard)</option>
+                            <option value="Arial, sans-serif">Arial</option>
+                            <option value="'Times New Roman', serif">Times New Roman</option>
+                            <option value="'Courier New', monospace">Courier</option>
+                        </select>
+                        <select id="text-size-select" style="width: 70px; padding: 6px; font-size: 0.85rem;">
+                            <option value="40px">40</option>
+                            <option value="60px">60</option>
+                            <option value="85px">85</option>
+                            <option value="110px">110</option>
+                            <option value="140px">140</option>
+                            <option value="200px">200</option>
+                            <option value="250px">250</option>
+                        </select>
+                    </div>
+
+                    <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+                        <button class="icon-btn" id="btn-bold" title="Fet"><b>B</b></button>
+                        <button class="icon-btn" id="btn-italic" title="Kursiv"><i>I</i></button>
+                        <button class="icon-btn" id="btn-underline" title="Understruken"><u>U</u></button>
+                    </div>
+
+                    <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+                        <button class="icon-btn" id="btn-align-left" title="Vänsterjustera"
+                            style="font-weight: bold;">⫷</button>
+                        <button class="icon-btn" id="btn-align-center" title="Centrera"
+                            style="font-weight: bold;">≡</button>
+                        <button class="icon-btn" id="btn-align-right" title="Högerjustera"
+                            style="font-weight: bold;">⫸</button>
+                    </div>
+
+                    <div
+                        style="display: flex; gap: 10px; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
+                        <label style="margin: 0; font-size: 0.85rem;">Färg:</label>
+                        <input type="color" id="text-color-picker" value="#ffffff"
+                            style="padding: 0; border: none; width: 30px; height: 30px; background: transparent; cursor: pointer;">
+                        <button class="secondary-btn" id="btn-reset-text"
+                            style="padding: 5px 10px; font-size: 0.8rem; flex: 1;">Återställ standard</button>
+                    </div>
+                </div>
+
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: auto;">
+                    <strong>Tips:</strong><br>
+                    • Dubbelklicka på text för att redigera den.<br>
+                    • Klicka och dra för att flytta objekt.<br>
+                    • Dra i det nedre högra hörnet för ändra storlek.<br>
+                    • Tryck på röda krysset för att radera.
+                </p>
+            </div>
+
+            <footer class="editor-footer" style="display:flex; flex-direction:column; gap:8px;">
+                <!-- Project Save/Load -->
+                <div style="display:flex; gap:6px;">
+                    <button id="save-project-btn" class="secondary-btn"
+                        style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; border-style:solid; font-size:0.85rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                            <polyline points="17 21 17 13 7 13 7 21" />
+                            <polyline points="7 3 7 8 15 8" />
+                        </svg>
+                        Spara projekt
+                    </button>
+                    <input type="file" id="load-project-input" accept=".json" style="display:none;">
+                    <button id="load-project-btn" class="secondary-btn"
+                        style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; border-style:solid; font-size:0.85rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <polyline points="14 2 14 8 20 8" />
+                            <line x1="12" y1="18" x2="12" y2="12" />
+                            <line x1="9" y1="15" x2="15" y2="15" />
+                        </svg>
+                        Ladda projekt
+                    </button>
+                </div>
+                <hr style="border: none; border-top: 1px solid var(--border-color); margin: 0;">
+                <button id="print-btn" class="primary-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                        <rect x="6" y="14" width="12" height="8"></rect>
+                    </svg>
+                    Skriv ut / Spara PDF
+                </button>
+                <button id="save-image-btn" class="secondary-btn"
+                    style="display:flex; align-items:center; justify-content:center; gap:8px; border-style:solid;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                        <polyline points="21 15 16 10 5 21" />
+                    </svg>
+                    Spara som bild (PNG)
+                </button>
+            </footer>
+        </aside>
+
+        <!-- Preview Area -->
+        <main class="preview-area">
+            <div class="preview-zoom-controls no-print">
+                <button id="zoom-out" title="Zooma ut">-</button>
+                <span id="zoom-level">100%</span>
+                <button id="zoom-in" title="Zooma in">+</button>
+            </div>
+
+            <div class="flyer-wrapper">
+                <div id="flyer" class="flyer a4 theme-red">
+                    <!-- Top warning stripes for yellow theme -->
+                    <div class="stripes top-stripes"></div>
+
+                    <div class="flyer-content" id="flyer-content">
+                        <!-- Headline -->
+                        <div class="draggable-item" id="item-headline" style="--y: 80px; z-index: 20;">
+                            <div class="headline-container">
+                                <h1 class="flyer-text-element" contenteditable="true" spellcheck="false"
+                                    style="font-size: 110px;">Rubrik här!</h1>
+                            </div>
+                            <button class="delete-btn" title="Ta bort">&times;</button>
+                            <div class="rotate-handle" title="Rotera">↻</div>
+                            <div class="resize-handle"></div>
+                        </div>
+
+                        <!-- Price Section -->
+                        <div class="draggable-item" id="item-price" style="--y: 350px; z-index: 30;">
+                            <div class="price-container">
+                                <div class="price-badge">
+                                    <span class="flyer-price" contenteditable="true" spellcheck="false">7999.-</span>
+                                    <div class="old-price">
+                                        <span class="flyer-old-price-text" contenteditable="true"
+                                            spellcheck="false">Spara 4 000.-</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="delete-btn" title="Ta bort">&times;</button>
+                            <div class="rotate-handle" title="Rotera">↻</div>
+                            <div class="resize-handle"></div>
+                        </div>
+
+                        <!-- Product Image -->
+                        <div class="draggable-item image-item" id="item-image" style="--y: 650px; z-index: 10;">
+                            <div class="product-image-container">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Jula_logo.svg/2560px-Jula_logo.svg.png"
+                                    style="opacity:0.2;" alt="" class="flyer-image placeholder hidden"
+                                    draggable="false">
+                            </div>
+                            <button class="delete-btn" title="Ta bort">&times;</button>
+                            <div class="rotate-handle" title="Rotera">↻</div>
+                            <div class="resize-handle"></div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="draggable-item" id="item-footer" style="--y: 950px; z-index: 25;">
+                            <div class="footer-container">
+                                <h2 class="flyer-text-element" contenteditable="true" spellcheck="false"
+                                    style="font-size: 85px;">Text Row</h2>
+                            </div>
+                            <button class="delete-btn" title="Ta bort">&times;</button>
+                            <div class="rotate-handle" title="Rotera">↻</div>
+                            <div class="resize-handle"></div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom warning stripes for yellow theme -->
+                    <div class="stripes bottom-stripes"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

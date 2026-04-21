@@ -1,0 +1,742 @@
+@font-face {
+    font-family: 'JULA';
+    src: url('JULA.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+:root {
+    --bg-color: #0d1117;
+    --sidebar-bg: #161b22;
+    --border-color: #30363d;
+    --text-primary: #f0f6fc;
+    --text-secondary: #8b949e;
+    --accent-color: #e20015;
+    /* jula red */
+    --accent-hover: #c40011;
+    --input-bg: #0d1117;
+
+    --flyer-width: 210mm;
+    --flyer-height: 297mm;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    height: 100vh;
+    overflow: hidden;
+}
+
+.app-container {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* Sidebar Styling - Premium Dark Mode */
+.editor-sidebar {
+    width: 350px;
+    background-color: var(--sidebar-bg);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.2);
+}
+
+.editor-header {
+    padding: 24px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.brand-logo {
+    height: 30px;
+}
+
+.editor-header h1 {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.editor-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+input[type="text"],
+select,
+textarea {
+    background-color: var(--input-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input[type="text"]:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(226, 0, 21, 0.15);
+}
+
+textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+.file-upload-wrapper {
+    position: relative;
+}
+
+#image-upload {
+    display: none;
+}
+
+.file-upload-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background-color: var(--input-bg);
+    border: 1px dashed var(--border-color);
+    padding: 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.file-upload-label:hover,
+.secondary-btn:hover {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+    background-color: rgba(226, 0, 21, 0.05);
+}
+
+.secondary-btn {
+    width: 100%;
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+    border: 1px dashed var(--border-color);
+    padding: 10px 15px;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.secondary-btn.file-upload-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: 1px dashed var(--border-color);
+}
+
+.icon-btn {
+    flex: 1;
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.icon-btn:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.icon-btn.active {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+    color: white;
+}
+
+.editor-footer {
+    padding: 20px 24px;
+    border-top: 1px solid var(--border-color);
+}
+
+.primary-btn {
+    width: 100%;
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.primary-btn:hover {
+    background-color: var(--accent-hover);
+}
+
+.primary-btn:active {
+    transform: scale(0.98);
+}
+
+/* Preview Area */
+.preview-area {
+    flex: 1;
+    background-color: #0d1117;
+    background-image: radial-gradient(#30363d 1px, transparent 1px);
+    background-size: 20px 20px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.preview-zoom-controls {
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    background: var(--sidebar-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 5;
+}
+
+.preview-zoom-controls button {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.preview-zoom-controls button:hover {
+    background: var(--border-color);
+}
+
+#zoom-level {
+    font-size: 0.85rem;
+    font-weight: 500;
+    min-width: 50px;
+    text-align: center;
+}
+
+.flyer-wrapper {
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    transform-origin: center center;
+}
+
+/* Flyer Styling - Canvas */
+.flyer {
+    width: var(--flyer-width);
+    height: var(--flyer-height);
+    background-color: white;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    font-family: 'JULA', sans-serif;
+    display: flex;
+    flex-direction: column;
+}
+
+.flyer.a4 {
+    --flyer-width: 210mm;
+    --flyer-height: 297mm;
+}
+
+.flyer.a3 {
+    --flyer-width: 297mm;
+    --flyer-height: 420mm;
+}
+
+/* Flyer Content & Themes */
+.flyer-content {
+    position: relative;
+    flex: 1;
+}
+
+.draggable-item {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(var(--scale)) rotate(var(--rotate, 0deg));
+    cursor: move;
+    border: 1px dashed transparent;
+    transition: border-color 0.2s;
+    user-select: none;
+    transform-origin: center;
+}
+
+.draggable-item.active {
+    border-color: rgba(0, 0, 0, 0.2);
+}
+
+.flyer.theme-red .draggable-item:hover,
+.flyer.theme-red .draggable-item.active {
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.resize-handle {
+    position: absolute;
+    bottom: -12px;
+    right: -12px;
+    width: 24px;
+    height: 24px;
+    background-color: var(--accent-color);
+    border: 2px solid white;
+    border-radius: 50%;
+    cursor: nwse-resize;
+    display: none;
+    z-index: 50;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.draggable-item.active .resize-handle {
+    display: block;
+}
+
+.delete-btn {
+    position: absolute;
+    top: -12px;
+    right: -12px;
+    width: 28px;
+    height: 28px;
+    background-color: var(--sidebar-bg);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    z-index: 50;
+    font-weight: bold;
+    font-size: 16px;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.delete-btn:hover {
+    background-color: #e20015;
+    border-color: #e20015;
+    color: white;
+}
+
+.draggable-item.active .delete-btn {
+    display: flex;
+}
+
+.rotate-handle {
+    position: absolute;
+    top: -46px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 28px;
+    height: 28px;
+    background-color: var(--sidebar-bg);
+    color: white;
+    border: 2px solid var(--border-color);
+    border-radius: 50%;
+    cursor: grab;
+    display: none;
+    z-index: 50;
+    font-size: 16px;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.rotate-handle:active {
+    cursor: grabbing;
+}
+
+.draggable-item.active .rotate-handle {
+    display: flex;
+}
+
+/* Breaker UI */
+.breaker-item {
+    width: 0 !important;
+    height: 0 !important;
+    padding: 0 !important;
+}
+
+.breaker-item.active {
+    border-color: transparent !important;
+}
+
+
+.breaker-item .delete-btn {
+    top: -24px;
+    right: -40px;
+}
+
+.breaker-item .rotate-handle {
+    top: -45px;
+}
+
+.breaker-item .resize-handle {
+    display: none !important;
+}
+
+.breaker-ui {
+    position: absolute;
+    left: -1500px;
+    top: -12px;
+    width: 3000px;
+    pointer-events: none;
+}
+
+.breaker-stripes {
+    height: 24px;
+    width: 100%;
+    background: repeating-linear-gradient(-45deg, #e20015, #e20015 20px, #ffe100 20px, #ffe100 40px);
+    pointer-events: auto;
+    cursor: move;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.breaker-fill {
+    height: 2500px;
+    width: 100%;
+    background-color: #ffe100;
+}
+
+.footer-banner-container {
+    background-color: #ffe800;
+    padding: 10px 30px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: var(--flyer-width);
+    box-sizing: border-box;
+}
+
+.footer-banner-text {
+    color: #e20015;
+    font-family: 'JULA', Arial, sans-serif;
+    font-size: 20px;
+    margin: 0;
+    text-transform: uppercase;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+[contenteditable="true"] {
+    cursor: text;
+    min-width: 50px;
+}
+
+[contenteditable="true"]:focus {
+    outline: 2px dashed rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.flyer.theme-yellow [contenteditable="true"]:focus {
+    outline-color: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.flyer.theme-red {
+    background: linear-gradient(to bottom, #cf2e2e 0%, #aa1e1e 50%, #871414 100%);
+    color: white;
+}
+
+/* Outlet banner draggable item - full width, no overflow resize handle needed */
+.outlet-banner-item .resize-handle {
+    display: none !important;
+}
+
+.flyer.theme-yellow {
+    background-color: #ffe100;
+    color: #e20015;
+}
+
+/* Yellow + Black warning stripes variant */
+.flyer.theme-yellow-black {
+    background-color: #ffe100;
+    color: #1a1a1a;
+}
+
+.flyer.theme-yellow-black .stripes {
+    display: block;
+    background: repeating-linear-gradient(-45deg,
+            #1a1a1a,
+            #1a1a1a 20px,
+            #ffe100 20px,
+            #ffe100 40px);
+}
+
+.flyer.theme-yellow-black [contenteditable="true"]:focus {
+    outline-color: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.flyer.theme-yellow-black #flyer-headline {
+    color: #1a1a1a;
+    text-shadow: none;
+}
+
+.flyer.theme-yellow-black #flyer-footer {
+    color: #1a1a1a;
+    text-shadow: none;
+    font-size: 50px;
+}
+
+.flyer.theme-crazy-deals {
+    background: radial-gradient(circle at center, rgba(255, 225, 0, 0.6) 10%, rgba(255, 225, 0, 0) 80%), linear-gradient(to bottom, #cf2e2e 0%, #aa1e1e 50%, #871414 100%);
+    color: white;
+}
+
+.stripes {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 20px;
+    background: repeating-linear-gradient(-45deg,
+            #e20015,
+            #e20015 20px,
+            #ffe100 20px,
+            #ffe100 40px);
+    z-index: 3;
+    display: none;
+}
+
+.flyer.theme-yellow .stripes {
+    display: block;
+}
+
+.top-stripes {
+    top: 0;
+}
+
+.bottom-stripes {
+    bottom: 0;
+}
+
+/* Flyer Typography & Elements */
+.headline-container {
+    text-align: center;
+    white-space: nowrap;
+    padding: 20px 40px;
+}
+
+.flyer-text-element {
+    font-weight: normal;
+    /* Removes default bold from h1/h2 */
+    margin: 0;
+}
+
+#flyer-headline {
+    font-size: 110px;
+    line-height: 0.95;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    letter-spacing: -1px;
+    margin: 0;
+    /* Basic style for red theme */
+}
+
+.flyer.theme-yellow #flyer-headline {
+    color: #e20015;
+    /* Red text on yellow background */
+    text-shadow: none;
+}
+
+.price-container {
+    display: flex;
+    justify-content: center;
+    transform: rotate(-3deg);
+    padding: 30px 40px;
+}
+
+.price-badge {
+    background-color: #ffe800;
+    /* Matching Jula yellow more closely */
+    color: #2b2b2b;
+    padding: 30px 40px;
+    border-radius: 12px;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    min-width: 200px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+}
+
+.flyer-price {
+    font-size: 140px;
+    line-height: 0.9;
+    letter-spacing: -2px;
+}
+
+.old-price {
+    position: absolute;
+    bottom: -20px;
+    /* Flyttad ännu mer nedåt */
+    right: -10px;
+    background: #a41c2c;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-size: 32px;
+    margin: 0;
+    white-space: nowrap;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 5;
+}
+
+.flyer-old-price-text {
+    outline: none;
+}
+
+.old-price.hidden {
+    display: none;
+}
+
+.footer-container {
+    text-align: center;
+    white-space: nowrap;
+    padding: 20px 40px;
+}
+
+#flyer-footer {
+    font-size: 85px;
+    line-height: 1;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.flyer.theme-yellow #flyer-footer {
+    color: #000;
+    text-shadow: none;
+    font-size: 50px;
+}
+
+.product-image-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#flyer-image,
+.flyer-image {
+    max-width: 800px;
+    max-height: 800px;
+    object-fit: contain;
+    /* Skugga borttagen */
+}
+
+#flyer-image.hidden {
+    display: none;
+}
+
+/* Print Styles */
+@media print {
+    body {
+        background-color: white !important;
+        margin: 0;
+        padding: 0;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    .app-container {
+        display: block;
+    }
+
+    .preview-area {
+        background: none;
+        padding: 0;
+        align-items: flex-start;
+        justify-content: flex-start;
+    }
+
+    .flyer-wrapper {
+        transform: scale(1) !important;
+        margin: 0;
+    }
+
+    .flyer {
+        box-shadow: none;
+        width: 100vw !important;
+        height: 100vh !important;
+        page-break-after: avoid;
+    }
+
+    .draggable-item {
+        border-color: transparent !important;
+    }
+
+    .price-badge,
+    .old-price,
+    .footer-banner-container,
+    .breaker-stripes {
+        box-shadow: none !important;
+    }
+
+    .resize-handle {
+        display: none !important;
+    }
+
+    @page {
+        margin: 0;
+    }
+}
