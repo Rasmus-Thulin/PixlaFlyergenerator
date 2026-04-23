@@ -354,84 +354,139 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Image Processing (Background Removal) ---
     function removeWhiteBackground(imgSrc, callback) {
-        const img = new Image();
-        img.crossOrigin = 'Anonymous';
-
         const isDataUrl = imgSrc.startsWith('data:');
 
-        img.onload = () => {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
+        function processImage(src) {
+            const img = new Image();
+            img.crossOrigin = "Anonymous";
 
-            const MAX_DIM = 800;
-            let width = img.width;
-            let height = img.height;
-            if (width > MAX_DIM || height > MAX_DIM) {
-                if (width > height) {
-                    height = Math.round(height * (MAX_DIM / width));
-                    width = MAX_DIM;
-                } else {
-                    width = Math.round(width * (MAX_DIM / height));
-                    height = MAX_DIM;
-                }
-            }
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
 
-            canvas.width = width;
-            canvas.height = height;
-            ctx.drawImage(img, 0, 0, width, height);
-
-            try {
-                const imgData = ctx.getImageData(0, 0, width, height);
-                const data = imgData.data;
-                const tolerance = 240; // High tolerance for white
-
-                // Flood fill stack starting from all border pixels
-                const stack = [];
-                for (let x = 0; x < width; x++) {
-                    stack.push([x, 0]);
-                    stack.push([x, height - 1]);
-                }
-                for (let y = 0; y < height; y++) {
-                    stack.push([0, y]);
-                    stack.push([width - 1, y]);
-                }
-
-                while (stack.length > 0) {
-                    const [x, y] = stack.pop();
-                    if (x < 0 || x >= width || y < 0 || y >= height) continue;
-
-                    const idx = (y * width + x) * 4;
-                    if (data[idx + 3] === 0) continue; // Already processed
-
-                    // Check if pixel is white-ish
-                    if (data[idx] >= tolerance && data[idx + 1] >= tolerance && data[idx + 2] >= tolerance) {
-                        data[idx + 3] = 0; // Make transparent
-
-                        stack.push([x - 1, y]);
-                        stack.push([x + 1, y]);
-                        stack.push([x, y - 1]);
-                        stack.push([x, y + 1]);
+                const MAX_DIM = 800;
+                let width = img.naturalWidth || img.width;
+                let height = img.naturalHeight || img.height;
+                if (width > MAX_DIM || height > MAX_DIM) {
+                    if (width > height) {
+                        height = Math.round(height * (MAX_DIM / width));
+                        width = MAX_DIM;
+                    } else {
+                        width = Math.round(width * (MAX_DIM / height));
+                        height = MAX_DIM;
                     }
                 }
 
-                ctx.putImageData(imgData, 0, 0);
-                callback(canvas.toDataURL('image/png'));
-            } catch (e) {
-                console.error("Canvas CORS error during background removal", e);
-                callback(imgSrc); // Fallback to original image
-            }
-        };
+                canvas.width = width;
+                canvas.height = height;
+                ctx.clearRect(0, 0, width, height); // Ensure transparency
+                ctx.drawImage(img, 0, 0, width, height);
 
-        img.onerror = () => {
-            console.error("Failed to load image for processing");
-            callback(imgSrc);
-        };
+                // Revoke blob URL after drawing
+                if (src.startsWith('blob:')) URL.revokeObjectURL(src);
 
-        // Use CORS proxy for external URLs to allow canvas read
-        if (isDataUrl || imgSrc.includes('corsproxy.io')) {
-            img.src = imgSrc;
+                try {
+                    const imgData = ctx.getImageData(0, 0, width, height);
+                    const data = imgData.data;
+                    const tolerance = 242;
+
+                    // Visited bitset to avoid re-queuing pixels
+                    const visited = new Uint8Array(width * height);
+
+                    // Seed stack from all border pixels
+                    const stack = [];
+                    for (let x = 0; x < width; x++) {
+                        stack.push(x, 0);
+                        stack.push(x, height - 1);
+                    }
+                    for (let y = 1; y < height - 1; y++) {
+                        stack.push(0, y);
+                        stack.push(width - 1, y);
+                    }
+
+                    while (stack.length > 0) {
+                        const y = stack.pop();
+                        const x = stack.pop();
+
+                        if (x < 0 || x >= width || y < 0 || y >= height) continue;
+
+                        const pos = y * width + x;
+                        if (visited[pos]) continue;
+                        visited[pos] = 1;
+
+                        const idx = pos * 4;
+
+                        // Check if pixel is white-ish OR already transparent
+                        const isTransparent = data[idx + 3] === 0;
+                        const isWhite = data[idx] >= tolerance &&
+                                        data[idx + 1] >= tolerance &&
+                                        data[idx + 2] >= tolerance;
+
+                        if (isTransparent || isWhite) {
+                            if (isWhite) data[idx + 3] = 0; // Make transparent
+                            
+                            // Push neighbors to continue flood fill
+                            stack.push(x - 1, y);
+                            stack.push(x + 1, y);
+                            stack.push(x, y - 1);
+                            stack.push(x, y + 1);
+                        }
+                    }
+
+                    ctx.putImageData(imgData, 0, 0);
+                    callback(canvas.toDataURL('image/png'));
+                } catch (e) {
+                    console.error("Canvas error during background removal", e);
+                    callback(imgSrc);
+                }
+            };
+
+            img.onerror = () => {
+                console.error("Failed to load image for processing:", src);
+                callback(imgSrc);
+            };
+
+            img.src = src;
+        }
+
+        if (isDataUrl) {
+            processImage(imgSrc);
         } else {
-            img.src = 'https://corsproxy.io/?' + encodeURIComponent(imgSrc);
+            // We use multiple proxies to bypass CORS and CDN blocks.
+            // Codetabs is currently very reliable for Jula CDN images.
+            const codetabsUrl = `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(imgSrc)}`;
+            const weservUrl = `https://images.weserv.nl/?url=${encodeURIComponent(imgSrc)}&output=png`;
+            const allOriginsUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(imgSrc)}`;
+            const corsIoUrl = `https://corsproxy.io/?${encodeURIComponent(imgSrc)}`;
+
+            const proxies = [codetabsUrl, weservUrl, allOriginsUrl, corsIoUrl];
+
+            function tryProxy(index) {
+                if (index >= proxies.length) {
+                    console.error('All CORS proxies failed – returning original image without background removal.');
+                    callback(imgSrc);
+                    return;
+                }
+                
+                console.log('Trying proxy:', proxies[index]);
+                fetch(proxies[index])
+                    .then(r => {
+                        if (!r.ok) throw new Error('HTTP ' + r.status);
+                        return r.blob();
+                    })
+                    .then(blob => {
+                        if (!blob.type.startsWith('image/')) {
+                            throw new Error('Response is not an image, got: ' + blob.type);
+                        }
+                        processImage(URL.createObjectURL(blob));
+                    })
+                    .catch(err => {
+                        console.warn('Proxy ' + index + ' failed:', err);
+                        tryProxy(index + 1);
+                    });
+            }
+
+            tryProxy(0);
         }
     }
 
@@ -450,7 +505,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (placeholder) {
                 placeholder.src = processedUrl;
                 placeholder.style.opacity = '1';
-                placeholder.classList.remove('placeholder');
+                placeholder.classList.remove('placeholder', 'hidden');
                 placeholder.style.width = '500px';
                 placeholder.style.height = '500px';
                 placeholder.style.maxHeight = 'none';
@@ -480,7 +535,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (placeholder) {
                         placeholder.src = processedUrl;
                         placeholder.style.opacity = '1';
-                        placeholder.classList.remove('placeholder');
+                        placeholder.classList.remove('placeholder', 'hidden');
                         placeholder.style.width = '500px';
                         placeholder.style.height = '500px';
                         placeholder.style.maxHeight = 'none';
